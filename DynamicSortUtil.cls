@@ -12,10 +12,11 @@ public class DynamicSortUtil implements Comparable {
     public SObject objSObject;
     public String fieldName;
     public Boolean isASC;
+    public Boolean isNumber;
 
     // Constructor
-    public DynamicSortUtil(SObject objSObject, String fieldName, Boolean isASC) {
-        // Guard against wrapping a null 
+    public DynamicSortUtil(SObject objSObject, String fieldName, Boolean isASC, Boolean isNumber) {
+        // Guard against wrapping a null
         if (objSObject == null) {
             Exception ex = new NullPointerException();
             ex.setMessage('SObject argument cannot be null');
@@ -24,6 +25,7 @@ public class DynamicSortUtil implements Comparable {
         this.objSObject = objSObject;
         this.fieldName = fieldName;
         this.isASC = isASC;
+        this.isNumber = isNumber;
     }
 
     /**
@@ -41,16 +43,42 @@ public class DynamicSortUtil implements Comparable {
         String fieldValue = String.valueOf(objSObject.get(this.fieldName));
         String compareToFieldValue = String.valueOf(compareToObj.objSObject.get(this.fieldName));
 
-        // null 값 처리
-        if (fieldValue == null && compareToFieldValue == null) {
-            return 0;
-        } else if (fieldValue == null) {
-            return isASC ? -1 : 1;
-        } else if (compareToFieldValue == null) {
-            return isASC ? 1 : -1;
-        }
+        if(this.isNumber) {
+            Integer intValueA = null;
+            Integer intValueB = null;
+            try {
+                intValueA = Integer.valueOf(fieldValue);
+            } catch (Exception e) {
+                // 예외 처리
+                intValueA = 0;
+            }
+            try {
+                intValueB = Integer.valueOf(compareToFieldValue);
+            } catch (Exception e) {
+                // 예외 처리
+                intValueB = 0;
+            }
 
-        // 필드 값 비교하여 반환
-        return isASC ? fieldValue.compareTo(compareToFieldValue) : -fieldValue.compareTo(compareToFieldValue);
+            // 값 비교하여 반환
+            if (intValueA == intValueB) {
+                return 0;
+            } else if (intValueA < intValueB) {
+                return isASC ? -1 : 1;
+            } else {
+                return isASC ? 1 : -1;
+            }
+        } else {
+            // null 값 처리
+            if (fieldValue == null && compareToFieldValue == null) {
+                return 0;
+            } else if (fieldValue == null) {
+                return isASC ? -1 : 1;
+            } else if (compareToFieldValue == null) {
+                return isASC ? 1 : -1;
+            }
+
+            // 필드 값 비교하여 반환
+            return isASC ? fieldValue.compareTo(compareToFieldValue) : -fieldValue.compareTo(compareToFieldValue);
+        }
     }
 }
