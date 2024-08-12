@@ -43,6 +43,7 @@ public class DynamicSortUtil implements Comparable {
         String fieldValue = String.valueOf(objSObject.get(this.fieldName));
         String compareToFieldValue = String.valueOf(compareToObj.objSObject.get(this.fieldName));
 
+        // 비교할 값이 숫자일 때
         if(this.isNumber) {
             Integer intValueA = null;
             Integer intValueB = null;
@@ -67,7 +68,9 @@ public class DynamicSortUtil implements Comparable {
             } else {
                 return isASC ? 1 : -1;
             }
-        } else {
+        }
+        // 비교할 값이 문자일 때
+        else {
             // null 값 처리
             if (fieldValue == null && compareToFieldValue == null) {
                 return 0;
